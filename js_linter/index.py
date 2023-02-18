@@ -1,5 +1,4 @@
 import sys
-file_to_lint = sys.argv[1]
 
 class Stack:
     def __init__(self):
@@ -24,57 +23,77 @@ class Linter:
     
     def __init__(self):
         self.__stack = Stack()
+        
+    
+    def lint(self, text_str: str):
+        lines = text_str.split('\n')
+        
+        for idx, line in enumerate(lines):
+            line_num = idx + 1
+            result = self.__lint_line(line, line_num)
 
-    def lint(self, text):
-        for char in text:
+            if result["status"] == "Error":
+                return result["message"]
+
+
+        if not(self.__stack.is_empty()):
+            char = self.__stack.pop()
+            return f"Does not have a closing brace: {char}."
+
+        return "Linting successful."
+
+
+    def __lint_line(self, line: str, line_num: int):
+        for char in line:
             if self.__is_opening_brace(char):
                 self.__stack.push(char)
 
             if self.__is_closing_brace(char):
                 if self.__stack.is_empty():
-                    return f"{char}: Does not have an opening brace."
+                    return {
+                        "status": "Error", 
+                        "message": f"Line: {line_num}. Does not have an opening brace: {char}."
+                    }
 
                 top = self.__stack.pop()
 
                 if not(self.__is_matching_brace(top, char)):
-                    return f"{char}: Mismatched brace error."
+                    return {
+                        "status": "Error",
+                        "message": f"Line: {line_num}. Mismatched brace error: {char}." 
+                    }
 
-        if not(self.__stack.is_empty()):
-            top = self.__stack.pop()
-            return f"{top}: Does not have a closing brace."
-
-        return "Linting successful."
+        return { "status": "Success" }
 
 
-    def __is_matching_brace(self, opening, closing):
+    def __is_matching_brace(self, opening: str, closing: str):
         matches = {'{': '}', '[': ']', '(': ')'}
         match = matches[opening]
         
         return closing == match
 
 
-    def __is_opening_brace(self, char):
+    def __is_opening_brace(self, char: str):
         return char in self.__OPENING_BRACES
 
 
-    def __is_closing_brace(self, char):
+    def __is_closing_brace(self, char: str):
         return char in self.__CLOSING_BRACES
 
 
 class File:
-    def get_text_str(self, filepath):
+    def get_text_str(self, filepath: str):
         return open(filepath, 'r').read()
 
 
-class Main:
-    def lint(self):
-        linter = Linter()
-        filepath = sys.argv[1]
-        
-        text_str = File().get_text_str(filepath)
-        result = linter.lint(text_str)
-        
-        print(result)
+def main():
+    linter = Linter()
+    filepath = sys.argv[1]
+    text_str = File().get_text_str(filepath)
+
+    result = linter.lint(text_str)
+
+    print(result)
 
 
-Main().lint()
+main()
