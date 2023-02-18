@@ -1,3 +1,6 @@
+import sys
+file_to_lint = sys.argv[1]
+
 class Stack:
     def __init__(self):
         self.__data = []
@@ -57,10 +60,21 @@ class Linter:
     def __is_closing_brace(self, char):
         return char in self.__CLOSING_BRACES
 
-my_linter = Linter()
 
-my_file = "{[()]}"
+class File:
+    def get_text_str(self, filepath):
+        return open(filepath, 'r').read()
 
-print(my_linter.lint(my_file))
+
+class Main:
+    def lint(self):
+        linter = Linter()
+        filepath = sys.argv[1]
+        
+        text_str = File().get_text_str(filepath)
+        result = linter.lint(text_str)
+        
+        print(result)
 
 
+Main().lint()
