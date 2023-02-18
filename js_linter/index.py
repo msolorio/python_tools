@@ -17,6 +17,12 @@ class Stack:
         return len(self.__data) == 0
 
 
+class Brace:
+    def __init__(self, char, line_num):
+        self.char = char
+        self.line_num = line_num
+
+
 class Linter:
     __OPENING_BRACES = ['{', '[', '(']
     __CLOSING_BRACES = ['}', ']', ')']
@@ -37,8 +43,8 @@ class Linter:
 
 
         if not(self.__stack.is_empty()):
-            char = self.__stack.pop()
-            return f"Does not have a closing brace: {char}."
+            brace = self.__stack.pop()
+            return f"Error: Missing closing brace: '{brace.char}'. Line: {brace.line_num}."
 
         return "Linting successful."
 
@@ -46,21 +52,23 @@ class Linter:
     def __lint_line(self, line: str, line_num: int):
         for char in line:
             if self.__is_opening_brace(char):
-                self.__stack.push(char)
+                brace = Brace(char, line_num)
+                
+                self.__stack.push(brace)
 
             if self.__is_closing_brace(char):
                 if self.__stack.is_empty():
                     return {
                         "status": "Error", 
-                        "message": f"Line: {line_num}. Does not have an opening brace: {char}."
+                        "message": f"Error: Missing opening brace: '{char}'. Line: {line_num}."
                     }
 
                 top = self.__stack.pop()
 
-                if not(self.__is_matching_brace(top, char)):
+                if not(self.__is_matching_brace(top.char, char)):
                     return {
                         "status": "Error",
-                        "message": f"Line: {line_num}. Mismatched brace error: {char}." 
+                        "message": f"Error: Mismatched brace error: \n- Found '{char}'. Line: {line_num}. \n- Expected: '{top.char}'. Line: {top.line_num}." 
                     }
 
         return { "status": "Success" }
@@ -95,5 +103,5 @@ def main():
 
     print(result)
 
-
-main()
+if __name__ == "__main__":
+    main()

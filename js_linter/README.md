@@ -11,5 +11,5 @@ I paired down linter for JavaScript written in Python.
 - [x] - Allow client to pass a file in command line to lint
 - [x] - Provide line number of error
   - [x] - for brace mismatch
-  - [ ] - for opening brace not closed
-  - [ ] - for closing brace not opened
+  - [x] - for opening brace not closed
+  - [x] - for closing brace not opened
